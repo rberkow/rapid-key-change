@@ -9,3 +9,5 @@ Algorithm:
 		5. Compute new key (using Keccak hash of s0 concatenated with counter)
 		6. Set new key based on result of 5.
 """
+from Hmackeccak import HmacKeccak
+class
