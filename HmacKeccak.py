@@ -27,6 +27,8 @@ if sys.version_info < (3,4):
     import sha3
 import hmac
 
+from ChangeKey import ChangeKey
+
 class HmacKeccak:
     """A class to abstract MAC generation and validation"""
     
@@ -39,9 +41,9 @@ class HmacKeccak:
             ctr: initialVector (optional default =0)
         """
         if ctr is None:
-            counter = 0
+            self.counter = 0
         else:
-            counter =ctr
+            self.counter =ctr
 
         self.key = key;
 
@@ -78,16 +80,27 @@ def new(key,ctr=None):
 
 if(__name__ == '__main__'):
         """check if consistency requirement of MAC still holds"""
+
         key = "98fkj998w8uhwluww0"
         message = "ID=0,Data=fireOnEngine3"
         hk = new(key);
+        key_changer = ChangeKey()
 
-        tag=hk.generateTagStateless(message)
-        consistent = hk.verifyTagStateless(message,tag)
-        print "Consistent Stateless generate and verify: " + str(consistent) 
+        for i in range(64): # Should have two different keys
+            if i > 0:
+                key_changer.perform_change(hk)
+            if key != key_changer.current_key:
+                key = key_changer.current_key
+                hk = new(key, hk.counter)
+
+            tag =hk.generateTag(message)
+            statefulMessage = str(0)+message;
+            consistent = hk.verifyTagStateless(statefulMessage,tag)
+            print "Consistent Stateful generate and verify: " + str(consistent) 
+
+            tag=hk.generateTagStateless(message)
+            consistent = hk.verifyTagStateless(message,tag)
+            print "Consistent Stateless generate and verify: " + str(consistent) 
         
-        tag =hk.generateTag(message)
-        statefulMessage = str(0)+message;
-        consistent = hk.verifyTagStateless(statefulMessage,tag)
-        print "Consistent Stateful generate and verify: " + str(consistent) 
+
 
