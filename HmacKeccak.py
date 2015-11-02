@@ -61,7 +61,7 @@ class HmacKeccak:
     def verifyTag(self,message,tag):
         """Validate a MAC and update counter to synchronize"""
         message = str(self.counter) + message;
-        if(self.verifyTagStateless(message,tag,self.counter)):
+        if(self.verifyTagStateless(message,tag)):
                 self.counter = self.counter +1;
                 return True
         else:
@@ -86,8 +86,9 @@ if(__name__ == '__main__'):
         consistent = hk.verifyTagStateless(message,tag)
         print "Consistent Stateless generate and verify: " + str(consistent) 
         
-        tag =hk.generateTag(message)
-        statefulMessage = str(0)+message;
-        consistent = hk.verifyTagStateless(statefulMessage,tag)
+        sender = new(key,0)
+        receiver = new(key,0)
+        tag =sender.generateTag(message)
+        consistent = receiver.verifyTag(message,tag)
         print "Consistent Stateful generate and verify: " + str(consistent) 
 
